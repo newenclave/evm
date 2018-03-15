@@ -133,6 +133,7 @@ int main()
 #define _(...) ASM.push(__VA_ARGS__)
 
 	assembler ASM;
+	// header. jump main
 	_(	evm::JMP, 0x40	);
 
 	// function sum(a, b)
@@ -144,11 +145,11 @@ int main()
 
 	// call main()
 	ASM.rep(0x40 - ASM.current());
-	_( evm::IPSH, 10	); // set a = 10
-	_( evm::IPSH, 20	); // set b = 20 
-	_( evm::CALL, 0x10, 2); // sum(a, b)
-	_( evm::POP			);  // reduce 1 
-	_( evm::HLT			);  // stack.top = a + b
+	_(	evm::IPSH, 10		); // set a = 10
+	_(	evm::IPSH, 20		); // set b = 20 
+	_(	evm::CALL, 0x10, 2	); // sum(a, b)
+	_(	evm::POP			);  // reduce 1 
+	_(	evm::HLT			);  // stack.top = a + b
 
 	evm::machine M(4096);
 	M.memory() = ASM.memory();
