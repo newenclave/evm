@@ -78,6 +78,7 @@ namespace evm {
 		}
 
 		u64 mem_read_u64();
+		f64 mem_read_f64();
 
 		void push_u64(u64 value);
 		void pop(std::size_t count = 1);

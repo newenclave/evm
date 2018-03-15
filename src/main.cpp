@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "evm/machine.h"
+#include "evm/endian.h"
 
 namespace {
 	void print_stack(evm::machine *M)
@@ -19,6 +20,7 @@ namespace {
 
 int main() 
 {
+
 	evm::machine M(4096);
 	M.memory().assign({
 		0xC2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x40,
