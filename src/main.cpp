@@ -4,49 +4,154 @@
 #include "evm/endian.h"
 
 namespace {
+
 	void print_stack(evm::machine *M)
 	{
+		if (M->get_registers().sp == 0) {
+			std::cout << "[ ]\n";
+			return;
+		}
+		if (M->get_registers().sp == -1) {
+			std::cout << "[ ]\n";
+		}
 		std::ostringstream oss;
 		oss << "[";
 		std::size_t top = static_cast<std::size_t>(M->get_registers().sp);
-		while (top) {
+		while (top > 0) {
 			oss << " " << M->get_stack()[top].data.u64_value;
 			--top;
 		}
 		oss << " ]";
 		std::cout << oss.str() << "\n";
 	}
+
+	using mem_type = std::vector<std::uint8_t>;
+
+	class assembler {
+	public:
+
+		void rep(std::size_t count)
+		{
+			mem_.resize(mem_.size() + count);
+		}
+
+		template <typename ...Args>
+		void push(std::uint8_t code, Args&& ...args)
+		{
+			push_code(code);
+			push_impl(std::forward<Args>(args)...);
+		}
+
+		std::uint64_t current()
+		{
+			return mem_.size();
+		}
+
+		const mem_type &memory() const
+		{
+			return mem_;
+		}
+
+	private:
+
+		void push_code(std::uint8_t code)
+		{
+			mem_.push_back(code);
+		}
+
+		void push_data(int value)
+		{
+			push_data((std::uint64_t)value);
+		}
+
+		void push_data(std::uint64_t value)
+		{
+			auto data = reinterpret_cast<const std::uint8_t *>(&value);
+#ifndef EVM_LITTLE_ENDIAN
+			mem_.push_back(data[0]);
+			mem_.push_back(data[1]);
+			mem_.push_back(data[2]);
+			mem_.push_back(data[3]);
+			mem_.push_back(data[4]);
+			mem_.push_back(data[5]);
+			mem_.push_back(data[6]);
+			mem_.push_back(data[7]);
+#else 
+			mem_.push_back(data[7]);
+			mem_.push_back(data[6]);
+			mem_.push_back(data[5]);
+			mem_.push_back(data[4]);
+			mem_.push_back(data[3]);
+			mem_.push_back(data[2]);
+			mem_.push_back(data[1]);
+			mem_.push_back(data[0]);
+#endif
+		}
+
+		void push_data(double value)
+		{
+			auto data = reinterpret_cast<const std::uint8_t *>(&value);
+#ifdef EVM_LITTLE_ENDIAN
+			mem_.push_back(data[0]);
+			mem_.push_back(data[1]);
+			mem_.push_back(data[2]);
+			mem_.push_back(data[3]);
+			mem_.push_back(data[4]);
+			mem_.push_back(data[5]);
+			mem_.push_back(data[6]);
+			mem_.push_back(data[7]);
+#else 
+			mem_.push_back(data[7]);
+			mem_.push_back(data[6]);
+			mem_.push_back(data[5]);
+			mem_.push_back(data[4]);
+			mem_.push_back(data[3]);
+			mem_.push_back(data[2]);
+			mem_.push_back(data[1]);
+			mem_.push_back(data[0]);
+#endif
+		}
+
+		void push_impl()
+		{}
+
+		template <typename Head, typename ...Tail>
+		void push_impl(Head head, Tail&& ...tail)
+		{
+			push_data(head);
+			push_impl(std::forward<Tail>(tail)...);
+		}
+
+		mem_type mem_;
+	};
+
+
 }
 
 int main() 
 {
+#define _(...) ASM.push(__VA_ARGS__)
+
+	assembler ASM;
+	_(	evm::JMP, 0x40	);
+
+	// function sum(a, b)
+	ASM.rep(0x10 - ASM.current());
+	_(	evm::LODA, 1	); // load a 
+	_(	evm::LODA, 2	); // load b 
+	_(	evm::IADD		); // a + b 
+	_(	evm::RET, 1		); // return (a+b)
+
+	// call main()
+	ASM.rep(0x40 - ASM.current());
+	_( evm::IPSH, 10	); // set a = 10
+	_( evm::IPSH, 20	); // set b = 20 
+	_( evm::CALL, 0x10, 2); // sum(a, b)
+	_( evm::POP			);  // reduce 1 
+	_( evm::HLT			);  // stack.top = a + b
 
 	evm::machine M(4096);
-	M.memory().assign({
-		0xC2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x40,
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-		
-/*16*/	0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x01,
-		0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x02,
-		0x05,
-		0xC1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1,
-/*44*/
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00,
-
-/*64*/	0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, /*main begins*/
-		0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1,
-		0x05,
-		0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2,
-		0x07,
-		0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0,
-		0x0D,
-		0x01, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0,
-		0xC0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x10,
-		      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x02,
-		0xFE,
-	});
+	M.memory() = ASM.memory();
 	while (M.running()) {
 		auto call = M.fetch();
 		call(&M);

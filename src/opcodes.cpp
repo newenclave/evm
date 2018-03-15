@@ -18,6 +18,11 @@ namespace evm {
 		M->stack_[++M->regs_.sp].data.u64_value = M->mem_read_u64();
 	}
 
+	void opcodes::pop(machine *M)
+	{
+		--M->regs_.sp;
+	}
+
 	void opcodes::iadd(machine *M)
 	{
 		M->stack_[M->regs_.sp - 1].data.u64_value = 
@@ -116,11 +121,27 @@ namespace evm {
 		M->regs_.ip = static_cast<std::size_t>(M->mem_read_u64());
 	}
 
+	void opcodes::jz(machine *M)
+	{
+		auto address = static_cast<std::size_t>(M->mem_read_u64());
+		if (M->pop_u64() == 0) {
+			M->regs_.ip = address;
+		}
+	}
+
+	void opcodes::jnz(machine *M)
+	{
+		auto address = static_cast<std::size_t>(M->mem_read_u64());
+		if (M->pop_u64() != 0) {
+			M->regs_.ip = address;
+		}
+	}
+
 	opcode_call opcodes::get(machine *M)
 	{
 		static const opcode_call allcalls[] = {
-			/*      00,    01,   02,  03,  04,  05,   06,  07,   08,  09,   0a,   0b,  0c,  0d,  0e,  0f */
-			/*00*/  nop, ipsh,  nop, nop, nop, iadd, nop, isub, nop, imul, nop, idiv, nop, imod, nop, nop,
+			/*       00,   01,   02,  03,  04,  05,   06,  07,   08,  09,   0a,   0b,  0c,  0d,  0e,   0f */
+			/*00*/  nop, ipsh,  nop, pop, nop, iadd, nop, isub, nop, imul, nop, idiv, nop, imod, nop, nop,
 			/*10*/ loda, lodf, lods, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
 			/*20*/  nop,  nop,  nop, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
 			/*30*/  nop,  nop,  nop, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
@@ -132,7 +153,7 @@ namespace evm {
 			/*90*/  nop,  nop,  nop, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
 			/*a0*/  nop,  nop,  nop, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
 			/*b0*/  nop,  nop,  nop, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
-			/*c0*/  cal,  ret,  jmp, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
+			/*c0*/  cal,  ret,  jmp,  jz, jnz,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
 			/*d0*/  nop,  nop,  nop, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
 			/*e0*/  nop,  nop,  nop, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop, nop,
 			/*f0*/  nop,  nop,  nop, nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, nop,  nop, hlt, nop,

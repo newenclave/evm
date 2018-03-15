@@ -1,6 +1,30 @@
 #include "evm/machine.h"
 #include "evm/endian.h"
 
+namespace {
+/* u64
+	#ifdef EVM_LITTLE_ENDIAN
+		out[0] = data[0];
+		out[1] = data[1];
+		out[2] = data[2];
+		out[3] = data[3];
+		out[4] = data[4];
+		out[5] = data[5];
+		out[6] = data[6];
+		out[7] = data[7];
+	#else
+		out[7] = data[0];
+		out[6] = data[1];
+		out[5] = data[2];
+		out[4] = data[3];
+		out[3] = data[4];
+		out[2] = data[5];
+		out[1] = data[6];
+		out[0] = data[7];
+	#endif
+*/
+}
+
 namespace evm {
 
 	machine::machine(std::size_t stack_size)
@@ -9,16 +33,18 @@ namespace evm {
 
 	machine::u64 machine::mem_read_u64()
 	{
-		std::uint64_t data = 0;
-		data = (data << 8) | memory_[regs_.ip++];
-		data = (data << 8) | memory_[regs_.ip++];
-		data = (data << 8) | memory_[regs_.ip++];
-		data = (data << 8) | memory_[regs_.ip++];
-		data = (data << 8) | memory_[regs_.ip++];
-		data = (data << 8) | memory_[regs_.ip++];
-		data = (data << 8) | memory_[regs_.ip++];
-		data = (data << 8) | memory_[regs_.ip++];
-		return data;
+		std::uint64_t out = 0;
+		auto data = &memory_[regs_.ip];
+		out = (out << 8) | data[0];
+		out = (out << 8) | data[1];
+		out = (out << 8) | data[2];
+		out = (out << 8) | data[3];
+		out = (out << 8) | data[4];
+		out = (out << 8) | data[5];
+		out = (out << 8) | data[6];
+		out = (out << 8) | data[7];
+		regs_.ip += sizeof(machine::u64);
+		return out;
 	}
 	
 	machine::f64 machine::mem_read_f64()
@@ -67,8 +93,7 @@ namespace evm {
 	void machine::pop_to(std::vector<machine::stack_value> &output)
 	{
 		for (auto &next : output) {
-			next = std::move(stack_.back());
-			stack_.pop_back();
+			next = std::move(stack_[regs_.sp--]);
 		}
 	}
 

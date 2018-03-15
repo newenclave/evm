@@ -31,6 +31,7 @@ namespace evm {
 			std::size_t fp = 0;
 			std::size_t ap = 0;
 			std::size_t ip = 0;
+
 			u64 flags = 0;
 		};
 
@@ -53,7 +54,11 @@ namespace evm {
 
 		void reset()
 		{
-			regs_.ip = regs_.sp = 0;
+			regs_.ip = 0;
+			regs_.ap = 0;
+			regs_.ap = 0;
+			regs_.sp = 0;
+
 			regs_.flags = 0;
 		}
 
