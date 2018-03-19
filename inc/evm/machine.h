@@ -14,6 +14,13 @@ namespace evm {
 		friend struct opcodes;
 	public:
 
+		enum data_type : uint8_t {
+			NONE,
+			UINTEGER,
+			FLOATING,
+			REGISTER,
+		};
+
 		using u8 = std::uint8_t;
 		using i64 = std::int64_t;
 		using u64 = std::uint64_t;
@@ -22,8 +29,10 @@ namespace evm {
 		struct stack_value {
 			union {
 				u64 u64_value;
+				i64 i64_value;
 				f64 f64_value;
 			} data;
+			data_type type = NONE;
 		};
 
 		struct registers {
@@ -56,7 +65,7 @@ namespace evm {
 		{
 			regs_.ip = 0;
 			regs_.ap = 0;
-			regs_.ap = 0;
+			regs_.fp = 0;
 			regs_.sp = 0;
 
 			regs_.flags = 0;
@@ -85,7 +94,7 @@ namespace evm {
 		u64 mem_read_u64();
 		f64 mem_read_f64();
 
-		void push_u64(u64 value);
+		void push_u64(u64 value, data_type type = UINTEGER);
 		void pop(std::size_t count = 1);
 		u64 pop_u64();
 		void pop_to(std::vector<stack_value> &output);

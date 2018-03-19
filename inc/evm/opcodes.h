@@ -77,13 +77,19 @@ namespace evm {
 	struct opcodes {
 		static void hlt(machine *M);
 		static void ipsh(machine *M);
+		static void fpsh(machine *M);
 		static void pop(machine *M);
+
 		static void iadd(machine *M);
-		static void fadd(machine *M);
 		static void isub(machine *M);
 		static void imul(machine *M);
 		static void idiv(machine *M);
 		static void imod(machine *M);
+
+		static void fadd(machine *M);
+		static void fsub(machine *M);
+		static void fmul(machine *M);
+		static void fdiv(machine *M);
 
 		static void loda(machine *M);
 		static void lodf(machine *M);

@@ -11,14 +11,27 @@ namespace {
 			std::cout << "[ ]\n";
 			return;
 		}
-		if (M->get_registers().sp == -1) {
-			std::cout << "[ ]\n";
-		}
 		std::ostringstream oss;
 		oss << "[";
 		std::size_t top = static_cast<std::size_t>(M->get_registers().sp);
 		while (top > 0) {
-			oss << " " << M->get_stack()[top].data.u64_value;
+			switch (M->get_stack()[top].type)
+			{
+			case evm::machine::FLOATING:
+				oss << " " << M->get_stack()[top].data.f64_value;
+				break;
+			case evm::machine::UINTEGER:
+				oss << " " << M->get_stack()[top].data.u64_value;
+				break;
+			case evm::machine::REGISTER:
+				oss << " r" << std::hex << M->get_stack()[top].data.u64_value
+					<< std::dec;
+				break;
+			default:
+				oss << " " << std::hex << M->get_stack()[top].data.u64_value
+					<< std::dec;
+				break;
+			}
 			--top;
 		}
 		oss << " ]";
@@ -125,11 +138,11 @@ namespace {
 		mem_type mem_;
 	};
 
-
 }
 
 int main() 
 {
+
 #define _(...) ASM.push(__VA_ARGS__)
 
 	assembler ASM;
@@ -140,13 +153,13 @@ int main()
 	ASM.rep(0x10 - ASM.current());
 	_(	evm::LODA, 1	); // load a 
 	_(	evm::LODA, 2	); // load b 
-	_(	evm::IADD		); // a + b 
+	_(	evm::FADD		); // a + b 
 	_(	evm::RET, 1		); // return (a+b)
 
 	// call main()
 	ASM.rep(0x40 - ASM.current());
-	_(	evm::IPSH, 10		); // set a = 10
-	_(	evm::IPSH, 20		); // set b = 20 
+	_(	evm::FPSH, 10.5		); // set a = 10
+	_(	evm::FPSH, 50.66	); // set b = 20 
 	_(	evm::CALL, 0x10, 2	); // sum(a, b)
 	_(	evm::POP			);  // reduce 1 
 	_(	evm::HLT			);  // stack.top = a + b

@@ -75,9 +75,10 @@ namespace evm {
 		return result;
 	}
 
-	void machine::push_u64(machine::u64 value)
+	void machine::push_u64(machine::u64 value, data_type type)
 	{
 		stack_[++regs_.sp].data.u64_value = value;
+		stack_[regs_.sp].type = type;
 	}
 
 	void machine::pop(std::size_t count)
