@@ -10,24 +10,28 @@ namespace evm { namespace assembler {
 	class lexer {
 	public:
 
-		using const_iterator = std::string::const_iterator;
+		using iterator = std::string::iterator;
 		struct lexem_info {
-			tokens::type type_;
-			const_iterator begin_;
-			const_iterator end_;
+			std::uint32_t type_ = tokens::type::NONE;
+			iterator begin_;
+			iterator end_;
 		};
 
-		void reset();
-		void add(const std::string str, tokens::type);
+		lexer(std::initializer_list<std::pair<std::string, std::uint32_t> > init);
+
+		void reset(std::string data);
+		void add(const std::string &str, std::uint32_t type);
 		lexem_info current() const;
 		lexem_info next() const;
 		bool eof() const;
 		void advance();
-		const_iterator skip_spaces(const_iterator from) const;
-
+		bool expect(std::uint32_t type);
 
 	private:
-		using trie_type = trie<char, tokens::type>;
+
+		iterator skip_spaces(iterator from) const;
+
+		using trie_type = trie<char, std::uint32_t>;
 		trie_type trie_;
 		std::string content_;
 		lexem_info current_;

@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <stack>
+#include <algorithm>
 
 namespace evm { namespace assembler {
 
@@ -164,11 +165,11 @@ namespace evm { namespace assembler {
         using node_type  = NodeT<KeyT, ValueT, Comp>;
 
     public:
-        base( ) = default;
-        base( const base & ) = default;
-        base& operator = ( const base & ) = default;
-        base( base && ) = default;
-        base& operator = ( base && ) = default;
+        trie( ) = default;
+        trie( const trie & ) = default;
+        trie& operator = ( const trie & ) = default;
+        trie(trie && ) = default;
+        trie& operator = (trie && ) = default;
 
 		template <typename Iter>
 		class const_result_view {

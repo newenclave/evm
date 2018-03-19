@@ -37,33 +37,32 @@
 		FF: reserved
 */
 
+#define ADD_FIELD8(name, value) static const std::uint8_t name = value
+
 namespace evm {
 
-	enum CODES: std::uint8_t {
-		IPSH = 0x01,
-		FPSH = 0x02,
-		POP  = 0x03,
-		IADD = 0x05,
-		FADD = 0x06,
-		ISUB = 0x07,
-		FSUB = 0x08,
-		IMUL = 0x09,
-		FMUL = 0x0A,
-		IDIV = 0x0B,
-		FDIV = 0x0C,
-		IMOV = 0x0D,
-
-		CALL = 0xC0,
-		RET  = 0xC1,
-		JMP  = 0xC2,
-		JZ   = 0xC3,
-		JNZ  = 0xC4,
-
-		LODA = 0x10,
-		LODF = 0x11,
-		LODS = 0x12,
-
-		HLT  = 0xFE,
+	struct op {
+		ADD_FIELD8(IPSH, 0x01);
+		ADD_FIELD8(FPSH, 0x02);
+		ADD_FIELD8(POP,  0x03);
+		ADD_FIELD8(IADD, 0x05);
+		ADD_FIELD8(FADD, 0x06);
+		ADD_FIELD8(ISUB, 0x07);
+		ADD_FIELD8(FSUB, 0x08);
+		ADD_FIELD8(IMUL, 0x09);
+		ADD_FIELD8(FMUL, 0x0A);
+		ADD_FIELD8(IDIV, 0x0B);
+		ADD_FIELD8(FDIV, 0x0C);
+		ADD_FIELD8(IMOV, 0x0D);
+		ADD_FIELD8(CALL, 0xC0);
+		ADD_FIELD8(RET,  0xC1);
+		ADD_FIELD8(JMP,  0xC2);
+		ADD_FIELD8(JZ,   0xC3);
+		ADD_FIELD8(JNZ,  0xC4);
+		ADD_FIELD8(LODA, 0x10);
+		ADD_FIELD8(LODF, 0x11);
+		ADD_FIELD8(LODS, 0x12);
+		ADD_FIELD8(HLT,  0xFE);
 	};
 
 	class machine;

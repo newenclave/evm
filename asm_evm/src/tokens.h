@@ -2,17 +2,26 @@
 #ifndef ASM_EVM_TOKENS_H
 #define ASM_EVM_TOKENS_H
 
+#include "evm/opcodes.h"
+
+#define ADD_FIELD32(name, value) static const std::uint32_t name = value
+
 namespace evm { namespace assembler {
 	namespace tokens {
+		
+		constexpr std::uint32_t ID(std::uint32_t val)
+		{
+			return 0xF000 | val;
+		}
 
-		enum class type {
-			NONE,
-			INT_BIN,
-			INT_OCT,
-			INT_DEC,
-			INT_HEX,
+		struct type: public evm::op {
+			ADD_FIELD32(NONE,	 ID(0));
+			ADD_FIELD32(INT_BIN, ID(1));
+			ADD_FIELD32(INT_OCT, ID(2));
+			ADD_FIELD32(INT_DEC, ID(3));
+			ADD_FIELD32(INT_HEX, ID(4));
 
-			END_OF_FILE,
+			ADD_FIELD32(END_OF_FILE, ID(0xFFF));
 		};
 
 	}

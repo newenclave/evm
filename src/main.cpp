@@ -142,27 +142,27 @@ namespace {
 
 int main() 
 {
-
+	using evm::op;
 #define _(...) ASM.push(__VA_ARGS__)
 
 	assembler ASM;
 	// header. jump main
-	_(	evm::JMP, 0x40	);
+	_(	op::JMP, 0x40	);
 
 	// function sum(a, b)
 	ASM.rep(0x10 - ASM.current());
-	_(	evm::LODA, 1	); // load a 
-	_(	evm::LODA, 2	); // load b 
-	_(	evm::FADD		); // a + b 
-	_(	evm::RET, 1		); // return (a+b)
+	_(	op::LODA, 1	); // load a 
+	_(	op::LODA, 2	); // load b 
+	_(	op::FADD		); // a + b 
+	_(	op::RET, 1	); // return (a+b)
 
 	// call main()
 	ASM.rep(0x40 - ASM.current());
-	_(	evm::FPSH, 10.5		); // set a = 10
-	_(	evm::FPSH, 50.66	); // set b = 20 
-	_(	evm::CALL, 0x10, 2	); // sum(a, b)
-	_(	evm::POP			);  // reduce 1 
-	_(	evm::HLT			);  // stack.top = a + b
+	_(	op::FPSH, 10.5		); // set a = 10
+	_(	op::FPSH, 50.66		); // set b = 20 
+	_(	op::CALL, 0x10, 2	); // sum(a, b)
+	_(	op::POP				);  // reduce 1 
+	_(	op::HLT				);  // stack.top = a + b
 
 	evm::machine M(4096);
 	M.memory() = ASM.memory();
