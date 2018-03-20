@@ -83,17 +83,13 @@ namespace evm { namespace assembler {
         }
 
         static
-        bool valid_for( tokens::type t, char c )
+        bool valid_for(std::uint32_t t, char c )
         {
             switch( t ) {
-            case tokens::type::INT_BIN:
-                return valid_for_bin( c );
-            case tokens::type::INT_OCT:
-                return valid_for_oct( c );
-            case tokens::type::INT_DEC:
-                return valid_for_dec( c );
-            case tokens::type::INT_HEX:
-                return valid_for_hex( c );
+            case 2: return valid_for_bin( c );
+            case 8: return valid_for_oct( c );
+            case 10: return valid_for_dec( c );
+            case 16: return valid_for_hex( c );
             default:
                 break;
             }
@@ -101,31 +97,13 @@ namespace evm { namespace assembler {
         }
 
         static
-        bool valid_for_( tokens::type t, char c )
+        bool valid_for_(std::uint32_t base, char c )
         {
-            return valid_for(t, c) || is_gap( c );
+            return valid_for(base, c) || is_gap( c );
         }
 
         static
-        unsigned base_for( tokens::type t )
-        {
-            switch( t ) {
-            case tokens::type::INT_BIN:
-                return 2;
-            case tokens::type::INT_OCT:
-                return 8;
-            case tokens::type::INT_DEC:
-                return 10;
-            case tokens::type::INT_HEX:
-                return 16;
-            default:
-                break;
-            }
-            return 0;
-        }
-
-        static
-        std::uint64_t parse_int( const std::string &input, tokens::type tt,
+        std::uint64_t parse_int( const std::string &input, std::uint32_t base,
                                  int *first_inval )
         {
             std::uint64_t res = 0;
@@ -135,8 +113,8 @@ namespace evm { namespace assembler {
 
             for( auto c: input ) {
                 if( !is_gap(c) ) {
-                    if( valid_for(tt, c) ) {
-                        res *= base_for( tt );
+                    if( valid_for(base, c) ) {
+                        res *= base;
                         res += char2int( c );
                         ++pos;
                     } else {
@@ -177,6 +155,67 @@ namespace evm { namespace assembler {
             auto bb = std::begin(cont);
             return parse_float( bb, std::end(cont) );
         }
+
+		template <typename ItrT>
+		static
+		std::string read_number(ItrT &begin, ItrT end, std::uint32_t tt)
+		{
+			std::string res;
+
+			for (; begin != end; ++begin) {
+				if(valid_for_(tt, *begin)) {
+					res.push_back(*begin);
+				} else {
+					break;
+				}
+			}
+
+			return res;
+		}
+
+		template <typename ItrT>
+		static
+		std::string read_float(ItrT &begin, ItrT end, int *found)
+		{
+			std::string res;
+			*found = 0;
+
+			for (; begin != end; ++begin) {
+				if (valid_for_dec(*begin)) {
+					res.push_back(*begin);
+				} else if (!numeric::is_gap(*begin)) {
+					break;
+				}
+			}
+
+			if (begin != end && *begin == '.') {
+				res.push_back(*begin++);
+				*found = 1;
+				for (; begin != end; ++begin) {
+					if (valid_for_dec(*begin)) {
+						res.push_back(*begin);
+					} else if (!is_gap(*begin)) {
+						break;
+					}
+				}
+			}
+
+			if (begin != end && (*begin == 'e' || *begin == 'E')) {
+				res.push_back(*begin++);
+				*found = 1;
+				if (begin != end && (*begin == '+' || *begin == '-')) {
+					res.push_back(*begin++);
+				}
+				for (; begin != end; ++begin) {
+					if (valid_for_dec(*begin)) {
+						res.push_back(*begin);
+					} else if (!is_gap(*begin)) {
+						break;
+					}
+				}
+			}
+			return res;
+		}
 
         template <typename ItrT>
         static

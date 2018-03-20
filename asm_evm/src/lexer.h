@@ -2,6 +2,7 @@
 #ifndef ASM_EVM_LEXER_H
 #define ASM_EVM_LEXER_H
 
+#include <string>
 #include "trie.h"
 #include "tokens.h"
 
@@ -11,10 +12,18 @@ namespace evm { namespace assembler {
 	public:
 
 		using iterator = std::string::iterator;
-		struct lexem_info {
+		struct lexem_info { //-V730
 			std::uint32_t type_ = tokens::type::NONE;
 			iterator begin_;
 			iterator end_;
+			struct {
+				union {
+					std::uint64_t i64_= 0;
+					std::uint64_t u64_;
+					double f64_;
+				} numeric_;
+				std::string s_;
+			} value_;
 		};
 
 		lexer(std::initializer_list<std::pair<std::string, std::uint32_t> > init);
@@ -28,7 +37,7 @@ namespace evm { namespace assembler {
 		bool expect(std::uint32_t type);
 
 	private:
-
+		lexem_info next();
 		iterator skip_spaces(iterator from) const;
 
 		using trie_type = trie<char, std::uint32_t>;
