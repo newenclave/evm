@@ -23,7 +23,8 @@ namespace evm { namespace assembler {
 			ADD_FIELD32(INT_HEX,  ID(4)); //-V112
 			ADD_FIELD32(FLOATING, ID(5)); 
 			ADD_FIELD32(COMMA,    ID(6));
-			ADD_FIELD32(DASH,     ID(7));
+			ADD_FIELD32(DASH, ID(7));
+			ADD_FIELD32(CURRENT, ID(7));
 
 			ADD_FIELD32(END_OF_FILE, ID(0xFFF));
 		};

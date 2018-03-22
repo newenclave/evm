@@ -28,7 +28,7 @@ namespace evm {
 
 		struct stack_value {
 			union {
-				u64 u64_value;
+				u64 u64_value = 0;
 				i64 i64_value;
 				f64 f64_value;
 			} data;

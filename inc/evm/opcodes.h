@@ -101,6 +101,7 @@ namespace evm {
 		static void jnz(machine *M);
 
 		static opcode_call get(machine *M);
+		static std::uint8_t get_count(std::uint8_t);
 		static const char *get_name(std::uint8_t opcode);
 	};
 }

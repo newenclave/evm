@@ -28,6 +28,11 @@ namespace evm { namespace assembler {
 
 		lexer(std::initializer_list<std::pair<std::string, std::uint32_t> > init);
 
+		lexer(lexer &&) = default;
+		lexer& operator = (lexer &&) = default;
+		lexer(const lexer &) = default;
+		lexer& operator = (const lexer &) = default;
+
 		void reset(std::string data);
 		void add(const std::string &str, std::uint32_t type);
 		lexem_info current() const;
