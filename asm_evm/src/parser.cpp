@@ -26,10 +26,11 @@ namespace {
 
 	bool up1(parser &P)
 	{
-		auto opcode = static_cast<std::uint8_t>(P.get_lexer().current().type_ & 0xff);
+		auto &lexer(P.get_lexer());
+		auto opcode = static_cast<std::uint8_t>(lexer.current().type_ & 0xff);
 		if (P.get_lexer().expect(tokens::type::INTEGER)) {
 			P.get_fitter().push_code(opcode);
-			P.get_fitter().push_int(P.get_lexer().current().value_.numeric_.u64_);
+			P.get_fitter().push_int(lexer.current().value_.numeric_.u64_);
 			return true;
 		}
 		return false;
@@ -37,19 +38,21 @@ namespace {
 
 	bool up2(parser &P)
 	{
-		auto opcode = static_cast<std::uint8_t>(P.get_lexer().current().type_ & 0xff);
+		auto &lexer(P.get_lexer());
+		auto opcode = static_cast<std::uint8_t>(lexer.current().type_ & 0xff);
 		std::uint64_t par1 = 0;
 		std::uint64_t par2 = 0;
 
-		if (!P.get_lexer().expect(tokens::type::INTEGER)) {
+		if (!lexer.expect(tokens::type::INTEGER)) {
 			return false;
 		}
-		par1 = P.get_lexer().current().value_.numeric_.u64_;
+		par1 = lexer.current().value_.numeric_.u64_;
+		lexer.expect(tokens::type::COMMA);
 
-		if (!P.get_lexer().expect(tokens::type::INTEGER)) {
+		if (!lexer.expect(tokens::type::INTEGER)) {
 			return false;
 		}
-		par2 = P.get_lexer().current().value_.numeric_.u64_;
+		par2 = lexer.current().value_.numeric_.u64_;
 		P.get_fitter().push_code(opcode);
 		P.get_fitter().push_int(par1);
 		P.get_fitter().push_int(par2);

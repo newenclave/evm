@@ -21,12 +21,12 @@ int main()
 		{ "fpush"_s, tokens::type::FPSH },
 		{ "iadd"_s, tokens::type::IADD },
 		{ "jmp"_s, tokens::type::JMP },
-		{ "$$"_s, tokens::type::CURRENT },
+		{ "$"_s, tokens::type::CURRENT },
 		{ ","_s, tokens::type::COMMA },
 		{ "-"_s, tokens::type::DASH },
 	};
 	lex.reset(R"(
-	ipush 10 
+	ipush 10
 	ipush 20
 	iadd
 	)");

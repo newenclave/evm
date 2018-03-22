@@ -5,17 +5,53 @@ namespace evm { namespace assembler {
 
 	namespace {
 		
-		bool is_space(char c) 
-		{
-			switch (c) {
-			case ' ':
-			case '\t':
-			case '\r':
-			case '\n':
-				return true;
+
+		struct idents {
+
+			static bool is_whitespace(char c)
+			{
+				return (c == ' ')
+					|| (c == '\t')
+					;
 			}
-			return false;
-		}
+
+			static bool is_newline(char c)
+			{
+				return (c == '\n')
+					|| (c == '\r')
+					;
+			}
+
+			static bool is_digit(char c)
+			{
+				return numeric::valid_for_dec(c);
+			}
+
+			static bool is_digit_(char c)
+			{
+				return numeric::valid_for_dec_(c);
+			}
+
+			static bool is_alfa(char c)
+			{
+				return (('a' <= c) && (c <= 'z'))
+					|| (('A' <= c) && (c <= 'Z'))
+					|| (c == '_')
+					;
+			}
+
+			static bool is_ident(char c)
+			{
+				return is_digit(c) || is_alfa(c) || (c == '_')
+					|| (static_cast<std::uint8_t>(c) > 127);
+			}
+
+			static bool is_space(char c)
+			{
+				return is_whitespace(c) || is_newline(c);
+			}
+
+		};
 
 		static unsigned base_for(std::uint32_t t)
 		{
@@ -90,6 +126,23 @@ namespace evm { namespace assembler {
 
             return res;
         }
+
+		template <typename ItrT>
+		static std::string read_ident(ItrT &begin, ItrT end)
+		{
+			std::string res;
+
+			for (; begin != end; ++begin) {
+				if (idents::is_ident(*begin)) {
+					res.push_back(*begin);
+				}
+				else {
+					break;
+				}
+			}
+
+			return res;
+		}
 	}
 
 	lexer::lexer(std::initializer_list<std::pair<std::string, std::uint32_t> > init)
@@ -166,14 +219,18 @@ namespace evm { namespace assembler {
 					info.type_ = tokens::type::INTEGER;
 					info.value_.numeric_.u64_ = numeric::parse_int(value, base, &valid);
 				}
-			} 
+			} else if (idents::is_ident(*next_iter)) {
+				info.begin_ = info.end_ = next_iter;
+				info.value_.s_ = read_ident(info.end_, content_.end());
+				info.type_ = tokens::type::IDENT;
+			}
 		}
 		return info;
 	}
 
 	lexer::iterator lexer::skip_spaces(iterator from) const
 	{
-		while (from != content_.end() && is_space(*from)) {
+		while (from != content_.end() && idents::is_space(*from)) {
 			++from;
 		}
 		return from;
