@@ -17,6 +17,7 @@ if(MAKE_TESTS)
 endif(MAKE_TESTS)
 
 list( APPEND src_dirs ./inc/evm
+                      ./inc/asm_evm
                       ./src 
     )
 

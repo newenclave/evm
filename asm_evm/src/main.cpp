@@ -1,6 +1,6 @@
 #include <iostream>
-#include "lexer.h"
-#include "parser.h"
+#include "evm_asm/lexer.h"
+#include "evm_asm/parser.h"
 
 using namespace evm::assembler;
 namespace {

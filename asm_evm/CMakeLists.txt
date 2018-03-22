@@ -11,6 +11,8 @@ set(src_dirs)
 set(exe_src)
 list(APPEND src_dirs ./src)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
+
 foreach( src_dir ${src_dirs} )
     aux_source_directory(${src_dir} exe_src)
     file(GLOB headers ${src_dir}/*.h)

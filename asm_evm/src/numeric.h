@@ -2,7 +2,7 @@
 #ifndef ASM_EVM_NUMERIC_H
 #define ASM_EVM_NUMERIC_H
 
-#include "tokens.h"
+#include "evm_asm/tokens.h"
 #include <cstdint>
 
 namespace evm { namespace assembler {

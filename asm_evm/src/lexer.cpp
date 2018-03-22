@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "evm_asm/lexer.h"
 #include "numeric.h"
 
 namespace evm { namespace assembler {
